@@ -9,6 +9,7 @@ interface Game {
     homeTeam: string,
     awayTeam: string,
     datetime: string
+    sport: string
 }
 
 export const handler = async (event: any) => {
@@ -31,14 +32,17 @@ export const handler = async (event: any) => {
             const start = dayjs().utc().startOf('day').format('YYYY-MM-DDTHH:mm:ss[Z]');
             const end= dayjs().utc().endOf('day').format('YYYY-MM-DDTHH:mm:ss[Z]');
             const rawGamesList = await oddsAPI.getGames(sportKey, start, end);
-            rawGames.push(rawGamesList?.data);
+            if (rawGamesList?.data?.length > 0) {
+                rawGames.push(rawGamesList?.data);
+            }
         }
-
-        const transformGames: Game[] = rawGames.map((rawGame: any) => ({
+        const flatGames = rawGames.flat();
+        const transformGames: Game[] = flatGames.map((rawGame: any) => ({
             id: rawGame.id,
             homeTeam: rawGame.home_team,
             awayTeam: rawGame.away_team,
-            datetime: rawGame.commence_time
+            datetime: rawGame.commence_time,
+            sport: rawGame.sport_title
         }));
         return transformGames;
     } catch (error) {

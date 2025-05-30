@@ -1,8 +1,9 @@
 type Game {
-    id: ID!,
+    id: String!,
     homeTeam: String!
     awayTeam: String!
     datetime: String!
+    sport: String!
 }
 
 type Query {
