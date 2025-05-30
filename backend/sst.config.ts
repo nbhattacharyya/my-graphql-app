@@ -13,7 +13,9 @@ export default {
   async stacks(app) {
     const { ConfigsStack } = await import("./stacks/ConfigsStack");
     const { API } = await import("./stacks/ApiStack");
+    const { Frontend } = await import("./stacks/FrontendStack")
     app.stack(ConfigsStack);
     app.stack(API);
+    app.stack(Frontend);
   }
 };

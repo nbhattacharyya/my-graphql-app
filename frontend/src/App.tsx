@@ -1,47 +1,71 @@
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+
 import './App.css'
-import { useState, useEffect } from 'react'
-import createClient from "graphql-request"
+import { useState, useEffect, use } from 'react'
+import { GraphQLClient } from "graphql-request"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs'
 import { Button } from './components/ui/button'
 
-const API_URL = '';
-const API_KEY = '';
+const API_URL = import.meta.env.VITE_APP_GRAPHQL_URL;
+const API_KEY = import.meta.env.VITE_APP_API_KEY;
 
 // Send a GraphQL Document to the server for execution
-const graphqlClient = createClient({
-  url: API_URL,
-  requestHeaders: {
+const graphqlClient = new GraphQLClient(API_URL, {
+  headers: {
     'x-api-key': API_KEY
   }
-})
+});
+
+const LIST_GAMES_QUERY = `
+  query ListSportsGamesToday {
+    listGamesToday {
+      id
+      homeTeam
+      awayTeam
+      datetime
+      sport
+    }
+  }
+`;
+
+interface Game {
+  id: string;
+  homeTeam: string;
+  awayTeam: string;
+  date: string;
+  sport: string;
+};
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [games, setGames] = useState<Game[]>([]);
+  const [selectedSport, setSelectedSport] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchGames = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await graphqlClient.request<{ listGamesToday: Game[] }>(LIST_GAMES_QUERY);
+        setGames(data.listGamesToday);
+      } catch (err: any) {
+        console.error('Error fetching games: ', err);
+        setError(err.message || 'failed to fetch games');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchGames();
+  }, []);
+
+  const sports = [...new Set(games?.map(game => game.sport))];
+  const filteredGames = games?.filter((game: Game) => game.sport === selectedSport);
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <div className='container mx-auto p-4 max-w-4xl'>
+        <h1 className='text-4xl font-bold text-center mb-8'>Today's Ganes</h1>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   )
 }
