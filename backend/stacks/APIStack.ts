@@ -1,5 +1,6 @@
 import { StackContext, Function, use, AppSyncApi } from "sst/constructs";
 import { ConfigsStack } from "./ConfigsStack";
+import { AuthorizationType } from "aws-cdk-lib/aws-appsync";
 
 export function API({ stack, app }: StackContext) {
 
@@ -37,7 +38,7 @@ export function API({ stack, app }: StackContext) {
             graphqlApi: {
                 authorizationConfig: {
                     defaultAuthorization: {
-                        authorizationType: `AuthorizationType.API_KEY`
+                        authorizationType: AuthorizationType.API_KEY
                     }
                 }
             }
@@ -46,7 +47,7 @@ export function API({ stack, app }: StackContext) {
     
     stack.addOutputs({
         ApiEndpoint: api.url,
-        ApiKey: api.apiKey
+        ApiKey: api.cdk.graphqlApi.apiKey || "No API Key Found"
     });
     
     return {
