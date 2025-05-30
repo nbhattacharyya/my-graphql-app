@@ -2,24 +2,16 @@ import * as oddsAPI from '../../packages/integrations/odds-api';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 
-function handleError(e: any, lambdaResponseHeaders: any) {
-    return {
-        statusCode: 500,
-        headers: lambdaResponseHeaders,
-        body: JSON.stringify({
-            errorMessage: `Error: ${e.message}, ${e.stack}`,
-        }),
-    };
-}
-
 dayjs.extend(utc);
 
+interface Game {
+    id: string,
+    homeTeam: string,
+    awayTeam: string,
+    datetime: string
+}
+
 export const handler = async (event: any) => {
-    const lambdaResponseHeaders = {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-        'Content-Type': 'application/json',
-    };
 
     try {
         
@@ -29,20 +21,28 @@ export const handler = async (event: any) => {
                                         .filter(([, months]) => months.includes(currentMonth))
                                         .map(([sport]) => sport);
         
-        let games: any[] = [];
+        let rawGames: any[] = [];
         for (let sport of inSeasonSports) {
             const sportKey = oddsAPI.SPORTS_KEY_MAP[sport];
             if (!sportKey) {
-                console.error('Invalid in-season sport: ', sport);
+                console.warn(`Invalid in-season sport: ${sport} - skipping.`);
                 return { error: 'Invalid sport' };
             }
             const start = dayjs().utc().startOf('day').format('YYYY-MM-DDTHH:mm:ss[Z]');
             const end= dayjs().utc().endOf('day').format('YYYY-MM-DDTHH:mm:ss[Z]');
             const rawGamesList = await oddsAPI.getGames(sportKey, start, end);
-            games.push(...games, rawGamesList?.data);
+            rawGames.push(rawGamesList?.data);
         }
-        return games;
+
+        const transformGames: Game[] = rawGames.map((rawGame: any) => ({
+            id: rawGame.id,
+            homeTeam: rawGame.home_team,
+            awayTeam: rawGame.away_team,
+            datetime: rawGame.commence_time
+        }));
+        return transformGames;
     } catch (error) {
-        return handleError(error, lambdaResponseHeaders);
+        console.error("Error in fetchGamesLambda: ", error);
+        throw new Error(`Failed to fetch games: ${error instanceof Error ? error.message : String(error)}`);
     }
 }

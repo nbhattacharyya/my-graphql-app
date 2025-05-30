@@ -1,6 +1,6 @@
-import { SSTConfig } from "sst";
+/*import { SSTConfig } from "sst";
 import { API } from "./stacks/ApiStack";
-import { ConfigsStack } from "./stacks/ConfigsStack";
+import { ConfigsStack } from "./stacks/ConfigsStack";*/
 
 export default {
   config(_input) {
@@ -10,8 +10,10 @@ export default {
       stage: 'neel' //TODO: set it as a key
     };
   },
-  stacks(app) {
+  async stacks(app) {
+    const { ConfigsStack } = await import("./stacks/ConfigsStack");
+    const { API } = await import("./stacks/ApiStack");
     app.stack(ConfigsStack);
     app.stack(API);
   }
-} satisfies SSTConfig;
+};

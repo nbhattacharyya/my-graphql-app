@@ -36,7 +36,8 @@ export function API({ stack, app }: StackContext) {
     })
     
     stack.addOutputs({
-        ApiEndpoint: api.url
+        ApiEndpoint: api.url,
+        ApiKey: api.apiKey
     });
     
     return {
