@@ -33,10 +33,20 @@ export function API({ stack, app }: StackContext) {
         resolvers: {
             "Query listGamesToday": "GamesLambdaDS"
         },
+        cdk: {
+            graphqlApi: {
+                authorizationConfig: {
+                    defaultAuthorization: {
+                        authorizationType: `AuthorizationType.API_KEY`
+                    }
+                }
+            }
+        }
     })
     
     stack.addOutputs({
         ApiEndpoint: api.url,
+        ApiKey: api.apiKey
     });
     
     return {
