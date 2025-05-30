@@ -1,7 +1,21 @@
-import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import { useState, useEffect } from 'react'
+import createClient from "graphql-request"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs'
+import { Button } from './components/ui/button'
+
+const API_URL = '';
+const API_KEY = '';
+
+// Send a GraphQL Document to the server for execution
+const graphqlClient = createClient({
+  url: API_URL,
+  requestHeaders: {
+    'x-api-key': API_KEY
+  }
+})
 
 function App() {
   const [count, setCount] = useState(0)
