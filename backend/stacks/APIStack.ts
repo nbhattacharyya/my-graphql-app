@@ -1,13 +1,21 @@
-import { StackContext, Function } from "sst/constructs";
-import * as sst from 'sst/constructs';
+import { StackContext, Api, EventBus, Function, use } from "sst/constructs";
+import { ConfigsStack } from "./ConfigsStack";
 
-export const ConfigStack = ({stack, app}: StackContext) => {
-    const ODDS_API_KEY = new sst.Config.Secret(stack, 'ODDS_API_KEY');
-    const ODDS_API_URL = new sst.Config.Secret(stack, 'ODDS_API_URL');
+export function API({ stack, app }: StackContext) {
+
+    const { ODDS_API_KEY, ODDS_API_URL } = use(ConfigsStack);
 
 
-    return {
-        ODDS_API_KEY,
-        ODDS_API_URL
-    };
+    const fetchGamesLambda = new Function(stack, 'fetchGamesLambda', {
+        functionName: `${app.stage}-${app.name}-fetch-games`,
+        handler: 'services/fetch-games/index.handler',
+        timeout: '5 minutes',
+        logRetention: 'one_month',
+        tracing: 'active',
+        bind: [
+            ODDS_API_KEY,
+            ODDS_API_URL
+        ],
+        environment: {}
+    });
 }

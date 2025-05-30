@@ -1,13 +1,19 @@
-/// <reference path="./.sst/platform/config.d.ts" />
+import { SSTConfig } from "sst";
+//import { API } from "./stacks/ApiStack";
+import { ConfigsStack } from "./stacks/ConfigsStack";
+//import { DataStack } from "./stacks/DataStack";
 
-export default $config({
-  app(input) {
+export default {
+  config(_input) {
     return {
-      name: "backend",
-      removal: input?.stage === "production" ? "retain" : "remove",
-      protect: ["production"].includes(input?.stage),
-      home: "aws",
+      name: "my-graphql-app-backend",
+      region: "us-east-1",
+      stage: 'neel' //TODO: set it as a key
     };
   },
-  async run() {},
-});
+  stacks(app) {
+    /*app.stack(ConfigStack);
+    app.stack(DataStack)
+    app.stack(API);*/
+  }
+} satisfies SSTConfig;
