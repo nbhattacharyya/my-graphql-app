@@ -3,8 +3,9 @@ import './App.css'
 import { useState, useEffect } from 'react'
 import { GraphQLClient } from "graphql-request"
 
-const API_URL = import.meta.env.VITE_APP_GRAPHQL_URL;
-const API_KEY = import.meta.env.VITE_APP_API_KEY;
+const API_URL = import.meta.env.VITE_APP_GRAPHQL_URL || 'https://qkz2xm54ibapzp7y5mw42rgzim.appsync-api.us-east-1.amazonaws.com/graphql'
+const API_KEY = import.meta.env.VITE_APP_API_KEY || 'da2-hiqe7tjspfhkfntgq7t46wjnye';
+console.log('api url: ', API_URL);
 
 // Send a GraphQL Document to the server for execution
 const graphqlClient = new GraphQLClient(API_URL, {
