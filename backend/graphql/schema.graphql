@@ -1,0 +1,14 @@
+type Game {
+    id: ID!,
+    homeTeam: String!
+    awayTeam: String!
+    date: String!
+}
+
+type Query {
+    listGamesToday: [Game!]!
+}
+
+schema {
+    query: Query
+}
